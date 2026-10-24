@@ -1,18 +1,26 @@
+
 #pragma once
 #include <string>
-#include "ListaPacientes.h"
+#include "../logica/AVL.h"
+using namespace std;
 
-class Servicio {
+class Departamento {
 private:
-    std::string nombre;
-    ListaPacientes pacientes;
+    string nombre;
+    AVL pacientes;
 
 public:
-    Servicio(std::string nombre);
+    Departamento(string nombre);
 
-    std::string getNombre() const;
-    int getCantidad() const;
+    string getNombre() const;
+
     void agregarPaciente(Paciente* p);
-    Paciente* buscarPaciente(std::string id) const;
-    void mostrarEstado() const;
+    Paciente* buscarPorId(string id) const;
+    Paciente* buscarPorNombre(string nombre) const;
+
+    void mostrarPacientes() const;
+    void mostrarPreorden() const;
+    void mostrarPostorden() const;
+    void mostrarBalance() const;
+    void mostrarAltura() const;
 };

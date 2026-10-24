@@ -1,30 +1,52 @@
+
 #include "Departamento.h"
 #include <iostream>
 using namespace std;
 
-Servicio::Servicio(string nombre) {
+Departamento::Departamento(string nombre) {
     this->nombre = nombre;
 }
 
-string Servicio::getNombre() const {
+string Departamento::getNombre() const {
     return nombre;
 }
 
-int Servicio::getCantidad() const {
-    return pacientes.getCantidad();
-}
-
-void Servicio::agregarPaciente(Paciente* p) {
+void Departamento::agregarPaciente(Paciente* p) {
     pacientes.insertar(p);
 }
 
-Paciente* Servicio::buscarPaciente(string id) const {
+Paciente* Departamento::buscarPorId(string id) const {
     return pacientes.buscarPorId(id);
 }
 
-void Servicio::mostrarEstado() const {
-    cout << "=== ESTADO " << nombre << " ===" << endl;
-    cout << "Pacientes en el departamento de " << nombre << ": "
-         << pacientes.getCantidad() << endl;
-    pacientes.mostrar();
+Paciente* Departamento::buscarPorNombre(string nombre) const {
+    return pacientes.buscarPorNombre(nombre);
+}
+
+void Departamento::mostrarPacientes() const {
+    cout << "=== " << nombre << " ===" << endl;
+
+    if (pacientes.estaVacio()) {
+        cout << "Sin pacientes." << endl;
+        return;
+    }
+
+    pacientes.inorden();
+}
+
+void Departamento::mostrarPreorden() const {
+    pacientes.preorden();
+}
+
+void Departamento::mostrarPostorden() const {
+    pacientes.postorden();
+}
+
+void Departamento::mostrarBalance() const {
+    pacientes.mostrarFactoresBalance();
+}
+
+void Departamento::mostrarAltura() const {
+    cout << "Altura del AVL de " << nombre
+         << ": " << pacientes.altura() << endl;
 }
