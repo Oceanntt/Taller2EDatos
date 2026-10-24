@@ -2,16 +2,21 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <cmath>
+#include <stdexcept>
 using namespace std;
 
 Hospital::Hospital() {
     servicios.cargarServiciosFijos();
 }
 
+
 bool Hospital::cargarPacientes(string nombreArchivo) {
     ifstream archivo(nombreArchivo);
+
     if (!archivo.is_open()) {
-        cout << "Error: no se pudo abrir el archivo " << nombreArchivo << endl;
+        cout << "Error: no se pudo abrir el archivo "
+             << nombreArchivo << endl;
         return false;
     }
 
@@ -25,58 +30,116 @@ bool Hospital::cargarPacientes(string nombreArchivo) {
         if (!linea.empty() && linea.back() == '\r') {
             linea.pop_back();
         }
+
         if (linea.empty()) {
             continue;
         }
 
         stringstream ss(linea);
-        string id, nombre, edadTexto, servicio, sobrante;
+        string campos[11];
+        bool valido = true;
 
-        if (!getline(ss, id, ';') || !getline(ss, nombre, ';') ||
-            !getline(ss, edadTexto, ';') || !getline(ss, servicio, ';') ||
-            getline(ss, sobrante, ';')) {
-            cout << "Linea " << numeroLinea << " invalida (cantidad de campos)." << endl;
+        for (int i = 0; i < 11; i++) {
+            if (!getline(ss, campos[i], ';') || campos[i].empty()) {
+                valido = false;
+                break;
+            }
+        }
+
+        string sobrante;
+        if (getline(ss, sobrante, ';')) {
+            valido = false;
+        }
+
+        if (!valido) {
+            cout << "Linea " << numeroLinea
+                 << " invalida (cantidad de campos)." << endl;
             continue;
         }
 
-        if (id.empty() || nombre.empty() || edadTexto.empty() || servicio.empty()) {
-            cout << "Linea " << numeroLinea << " invalida (campo vacio)." << endl;
-            continue;
-        }
-
-        int edad;
         try {
-            edad = stoi(edadTexto);
-        } catch (...) {
-            cout << "Linea " << numeroLinea << " invalida (edad no numerica)." << endl;
-            continue;
-        }
-        if (edad < 0 || edad > 120) {
-            cout << "Linea " << numeroLinea << " invalida (edad fuera de rango)." << endl;
-            continue;
-        }
+            string id = campos[0];
+            string nombre = campos[1];
 
-        Servicio* destino = servicios.buscarPorNombre(servicio);
-        if (destino == nullptr) {
-            cout << "Linea " << numeroLinea << " invalida (servicio no existe: " << servicio << ")." << endl;
-            continue;
-        }
+            auto convertirEntero = [](const string& texto) {
+                size_t posicion = 0;
+                int valor = stoi(texto, &posicion);
+                if (posicion != texto.size()) {
+                    throw invalid_argument("Entero invalido");
+                }
+                return valor;
+            };
 
-        if (colaEspera.buscarPorId(id) != nullptr ||
-            servicios.buscarPacienteEnServicios(id) != nullptr) {
-            cout << "Linea " << numeroLinea << " invalida (ID duplicado: " << id << ")." << endl;
-            continue;
-        }
+            auto convertirDecimal = [](const string& texto) {
+                size_t posicion = 0;
+                double valor = stod(texto, &posicion);
+                if (posicion != texto.size() || !isfinite(valor)) {
+                    throw invalid_argument("Decimal invalido");
+                }
+                return valor;
+            };
 
-        // Se guarda el nombre oficial del servicio (con la escritura correcta)
-        colaEspera.encolar(new Paciente(id, nombre, edad, destino->getNombre()));
-        cargados++;
+            int edad = convertirEntero(campos[2]);
+            double temperatura = convertirDecimal(campos[3]);
+            int presion = convertirEntero(campos[4]);
+            int dolor = convertirEntero(campos[5]);
+            string tipoDolor = campos[6];
+            int trauma = convertirEntero(campos[7]);
+            int sintomas = convertirEntero(campos[8]);
+            int cirugia = convertirEntero(campos[9]);
+            int dias = convertirEntero(campos[10]);
+
+            if (edad < 0 || edad > 120 ||
+                temperatura < 30 || temperatura > 45 ||
+                presion <= 0 || presion > 300 ||
+                dolor < 0 || dolor > 10 ||
+                dias < 0 ||
+                (trauma != 0 && trauma != 1) ||
+                (sintomas != 0 && sintomas != 1) ||
+                (cirugia != 0 && cirugia != 1) ||
+                (tipoDolor != "pecho" &&
+                 tipoDolor != "cabeza" &&
+                 tipoDolor != "abdomen" &&
+                 tipoDolor != "extremidad" &&
+                 tipoDolor != "otro")) {
+
+                cout << "Linea " << numeroLinea
+                     << " invalida (valores fuera de rango)."
+                     << endl;
+                continue;
+            }
+
+            if (colaEspera.buscarPorId(id) != nullptr ||
+                servicios.buscarPacienteEnServicios(id) != nullptr) {
+
+                cout << "Linea " << numeroLinea
+                     << " invalida (ID duplicado: "
+                     << id << ")." << endl;
+                continue;
+            }
+
+            Paciente* nuevo = new Paciente(
+                id, nombre, edad, temperatura, presion,
+                dolor, tipoDolor, trauma == 1,
+                sintomas == 1, cirugia == 1, dias
+            );
+
+            colaEspera.encolar(nuevo);
+            cargados++;
+
+        } catch (const exception&) {
+            cout << "Linea " << numeroLinea
+                 << " invalida (dato numerico incorrecto)."
+                 << endl;
+        }
     }
 
     archivo.close();
+
     cout << "Pacientes cargados: " << cargados << endl;
     return true;
 }
+
 
 void Hospital::mostrarEnEspera() const {
     colaEspera.mostrar();
