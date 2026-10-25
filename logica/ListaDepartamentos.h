@@ -1,31 +1,27 @@
+
 #pragma once
+#include "../dominio/Departamento.h"
 #include <string>
-#include "Departamento.h"
+using namespace std;
 
-struct NodoServicio {
-    Servicio* servicio;
-    NodoServicio* siguiente;
-
-    NodoServicio(Servicio* s) {
-        servicio = s;
-        siguiente = nullptr;
-    }
-};
-
-class ListaServicios {
+class ListaDepartamentos {
 private:
-    NodoServicio* primero;
+    Departamento* departamentos[8];
     int cantidad;
 
 public:
-    ListaServicios();
-    ~ListaServicios();
+    ListaDepartamentos();
+    ~ListaDepartamentos();
 
-    void insertar(Servicio* s);
-    void cargarServiciosFijos();
-    Servicio* buscarPorNombre(std::string nombre) const;
-    Servicio* buscarPorPosicion(int posicion) const;
-    Paciente* buscarPacienteEnServicios(std::string id) const;
-    int getCantidad() const;
-    void mostrarNombres() const;
+    Departamento* buscarDepartamento(string nombre) const;
+
+    bool agregarPaciente(string servicio, Paciente* p);
+
+    Paciente* buscarPorId(string id) const;
+    Paciente* buscarPorNombre(string nombre) const;
+
+    void mostrarDepartamentos() const;
+
+    ListaDepartamentos(const ListaDepartamentos&) = delete;
+    ListaDepartamentos& operator=(const ListaDepartamentos&) = delete;
 };
