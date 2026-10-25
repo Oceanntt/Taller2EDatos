@@ -83,3 +83,13 @@ void ListaDepartamentos::mostrarDepartamentos() const {
         cout << endl;
     }
 }
+
+Paciente* ListaDepartamentos::buscarPorIdConRuta(string id) const {
+    for (int i = 0; i < cantidad; i++) {
+        if (departamentos[i]->buscarPorId(id) != nullptr) {
+            return departamentos[i]->buscarPorIdConRuta(id);
+        }
+    }
+
+    return nullptr;
+}

@@ -84,23 +84,8 @@ int main() {
             }
             break;
 
-        case 2:
-            cout << "\n=== DEPARTAMENTOS ===" << endl;
-
-            for (int i = 0; i < 8; i++) {
-                cout << i + 1 << ". "
-                     << nombresDepartamentos[i] << endl;
-            }
-
-            posicion = pedirOpcionValida(
-                "Seleccionar opcion: ", 1, 8
-            );
-
-            if (posicion >= 1 && posicion <= 8) {
-                hospital.mostrarEstadoServicio(
-                    nombresDepartamentos[posicion - 1]
-                );
-            }
+       case 2:
+            hospital.mostrarDepartamentos();
             break;
 
         case 3:

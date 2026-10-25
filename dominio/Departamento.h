@@ -23,4 +23,6 @@ public:
     void mostrarPostorden() const;
     void mostrarBalance() const;
     void mostrarAltura() const;
+    Paciente* buscarPorIdConRuta(string id) const;
 };
+

@@ -50,3 +50,6 @@ void Departamento::mostrarAltura() const {
     cout << "Altura del AVL de " << nombre
          << ": " << pacientes.altura() << endl;
 }
+Paciente* Departamento::buscarPorIdConRuta(string id) const {
+    return pacientes.buscarPorIdConRuta(id);
+}

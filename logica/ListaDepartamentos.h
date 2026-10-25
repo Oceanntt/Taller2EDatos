@@ -24,4 +24,5 @@ public:
 
     ListaDepartamentos(const ListaDepartamentos&) = delete;
     ListaDepartamentos& operator=(const ListaDepartamentos&) = delete;
+    Paciente* buscarPorIdConRuta(string id) const;
 };

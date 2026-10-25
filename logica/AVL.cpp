@@ -241,3 +241,25 @@ void AVL::liberar(NodoAVL* nodo) {
     delete nodo->paciente;
     delete nodo;
 }
+
+Paciente* AVL::buscarPorIdConRuta(string id) const {
+    NodoAVL* actual = raiz;
+
+    cout << "Ruta de busqueda:" << endl;
+
+    while (actual != nullptr) {
+        cout << actual->paciente->getId() << endl;
+
+        if (id == actual->paciente->getId()) {
+            return actual->paciente;
+        }
+
+        if (id < actual->paciente->getId()) {
+            actual = actual->izquierdo;
+        } else {
+            actual = actual->derecho;
+        }
+    }
+
+    return nullptr;
+}

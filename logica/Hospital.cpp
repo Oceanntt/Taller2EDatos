@@ -173,7 +173,7 @@ void Hospital::atenderPacientes(int cantidad) {
             break;
         }
 
-        string servicio = arbolDecision.clasificar(p);
+        string servicio = arbolDecision.clasificarConRuta(p);
 
         if (servicio == "Error") {
             cout << "Error al clasificar paciente: "
@@ -215,10 +215,16 @@ void Hospital::mostrarDepartamentos() const {
 
 // BUSCAR PACIENTE
 
+
 void Hospital::buscarPaciente(string dato) const {
+    cout << "\n=== BUSCAR PACIENTE ===" << endl;
+    cout << "Buscando en AVL..." << endl;
+
     Paciente* encontrado = departamentos.buscarPorId(dato);
 
-    if (encontrado == nullptr) {
+    if (encontrado != nullptr) {
+        encontrado = departamentos.buscarPorIdConRuta(dato);
+    } else {
         encontrado = departamentos.buscarPorNombre(dato);
     }
 
@@ -227,9 +233,14 @@ void Hospital::buscarPaciente(string dato) const {
         return;
     }
 
-    cout << "\n=== PACIENTE ENCONTRADO ===" << endl;
+    cout << "Paciente encontrado:" << endl;
+    cout << "-------" << endl;
+
     encontrado->mostrar();
+
+    cout << "-------" << endl;
 }
+
 
 // MOSTRAR ESTADO DE UN DEPARTAMENTO
 

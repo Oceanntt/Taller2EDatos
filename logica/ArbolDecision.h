@@ -28,4 +28,5 @@ public:
 
     ArbolDecision(const ArbolDecision&) = delete;
     ArbolDecision& operator=(const ArbolDecision&) = delete;
+    string clasificarConRuta(const Paciente* paciente) const;
 };

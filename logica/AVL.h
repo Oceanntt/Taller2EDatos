@@ -43,4 +43,5 @@ public:
 
     AVL(const AVL&) = delete;
     AVL& operator=(const AVL&) = delete;
+    Paciente* buscarPorIdConRuta(string id) const;
 };

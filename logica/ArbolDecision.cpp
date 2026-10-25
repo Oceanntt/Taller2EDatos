@@ -147,3 +147,66 @@ void ArbolDecision::inorden() const {
 void ArbolDecision::postorden() const {
     mostrarPostorden(raiz);
 }
+
+string ArbolDecision::clasificarConRuta(const Paciente* paciente) const {
+    if (paciente == nullptr || raiz == nullptr) {
+        return "Error";
+    }
+
+    NodoDecision* actual = raiz;
+
+    cout << "Ruta: ";
+
+    bool primera = true;
+
+    while (actual != nullptr && actual->tipo != 0) {
+        bool respuesta = evaluarCondicion(actual->tipo, paciente);
+
+        if (!primera) {
+            cout << " -> ";
+        }
+
+        switch (actual->tipo) {
+            case 1:
+                cout << (respuesta ? "Edad < 14" : "Edad >= 14");
+                break;
+            case 2:
+                cout << (respuesta ? "Trauma == 1" : "Trauma == 0");
+                break;
+            case 3:
+                cout << (respuesta ? "RequiereCirugia == 1"
+                                   : "RequiereCirugia == 0");
+                break;
+            case 4:
+                cout << (respuesta ? "SintomasNeurologicos == 1"
+                                   : "SintomasNeurologicos == 0");
+                break;
+            case 5:
+                cout << (respuesta ? "TipoDolor == pecho"
+                                   : "TipoDolor != pecho");
+                break;
+            case 6:
+                cout << (respuesta ? "Temperatura >= 38.5 o Dolor >= 8"
+                                   : "Temperatura < 38.5 y Dolor < 8");
+                break;
+            case 7:
+                cout << (respuesta ? "DiasHospitalizacion >= 2"
+                                   : "DiasHospitalizacion < 2");
+                break;
+            default:
+                cout << "Condicion desconocida";
+                break;
+        }
+
+        primera = false;
+        actual = respuesta ? actual->si : actual->no;
+    }
+
+    cout << endl;
+
+    if (actual == nullptr) {
+        return "Error";
+    }
+
+    return actual->servicio;
+}
