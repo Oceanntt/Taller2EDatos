@@ -1,24 +1,28 @@
+
 #pragma once
 #include <string>
 #include "Cola.h"
 #include "ListaDepartamentos.h"
-#include "Pila.h"
+#include "ArbolDecision.h"
+using namespace std;
 
 class Hospital {
 private:
     Cola colaEspera;
-    ListaServicios servicios;
-    Pila historial;
+    ListaDepartamentos departamentos;
+    ArbolDecision arbolDecision;
 
 public:
     Hospital();
 
-    bool cargarPacientes(std::string nombreArchivo);
+    bool cargarPacientes(string nombreArchivo);
+
     void mostrarEnEspera() const;
     int getPacientesEnEspera() const;
-    int getCantidadServicios() const;
+
     void atenderPacientes(int cantidad);
     void mostrarDepartamentos() const;
-    void mostrarEstadoServicio(int posicion) const;
-    void mostrarHistorial() const;
+
+    void buscarPaciente(string dato) const;
+    void mostrarEstadoServicio(string nombre) const;
 };

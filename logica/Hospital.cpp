@@ -1,3 +1,4 @@
+
 #include "Hospital.h"
 #include <fstream>
 #include <sstream>
@@ -7,9 +8,9 @@
 using namespace std;
 
 Hospital::Hospital() {
-    servicios.cargarServiciosFijos();
 }
 
+// CARGAR PACIENTES DESDE ARCHIVO
 
 bool Hospital::cargarPacientes(string nombreArchivo) {
     ifstream archivo(nombreArchivo);
@@ -64,18 +65,22 @@ bool Hospital::cargarPacientes(string nombreArchivo) {
             auto convertirEntero = [](const string& texto) {
                 size_t posicion = 0;
                 int valor = stoi(texto, &posicion);
+
                 if (posicion != texto.size()) {
                     throw invalid_argument("Entero invalido");
                 }
+
                 return valor;
             };
 
             auto convertirDecimal = [](const string& texto) {
                 size_t posicion = 0;
                 double valor = stod(texto, &posicion);
+
                 if (posicion != texto.size() || !isfinite(valor)) {
                     throw invalid_argument("Decimal invalido");
                 }
+
                 return valor;
             };
 
@@ -110,7 +115,7 @@ bool Hospital::cargarPacientes(string nombreArchivo) {
             }
 
             if (colaEspera.buscarPorId(id) != nullptr ||
-                servicios.buscarPacienteEnServicios(id) != nullptr) {
+                departamentos.buscarPorId(id) != nullptr) {
 
                 cout << "Linea " << numeroLinea
                      << " invalida (ID duplicado: "
@@ -140,6 +145,7 @@ bool Hospital::cargarPacientes(string nombreArchivo) {
     return true;
 }
 
+// MOSTRAR COLA DE ESPERA
 
 void Hospital::mostrarEnEspera() const {
     colaEspera.mostrar();
@@ -149,47 +155,104 @@ int Hospital::getPacientesEnEspera() const {
     return colaEspera.getCantidad();
 }
 
-int Hospital::getCantidadServicios() const {
-    return servicios.getCantidad();
-}
+// ATENDER PACIENTES
 
 void Hospital::atenderPacientes(int cantidad) {
     cout << "\n=== ATENDIENDO PACIENTES ===" << endl;
+
+    if (cantidad <= 0) {
+        cout << "Cantidad de pacientes no valida." << endl;
+        return;
+    }
+
     for (int i = 0; i < cantidad; i++) {
         Paciente* p = colaEspera.desencolar();
+
         if (p == nullptr) {
-            cout << "No quedan mas pacientes en espera." << endl;
+            cout << "No quedan pacientes en espera." << endl;
             break;
         }
 
-        Servicio* destino = servicios.buscarPorNombre(p->getServicio());
-        if (destino == nullptr) {
-            cout << "Servicio no valido para " << p->getNombre() << "." << endl;
+        string servicio = arbolDecision.clasificar(p);
+
+        if (servicio == "Error") {
+            cout << "Error al clasificar paciente: "
+                 << p->getId() << endl;
+
+            delete p;
+            continue;
+        }
+
+        p->setServicio(servicio);
+
+        bool insertado = departamentos.agregarPaciente(servicio, p);
+
+        if (!insertado) {
+            cout << "No se pudo insertar al paciente "
+                 << p->getId() << endl;
+
             delete p;
             continue;
         }
 
         p->mostrar();
-        destino->agregarPaciente(p);
-        historial.agregar(p->getId(), p->getNombre(), p->getEdad(), destino->getNombre());
-        cout << "Paciente enviado a " << destino->getNombre() << ".\n" << endl;
+
+        cout << "Servicio asignado: "
+             << servicio << endl;
+
+        cout << "Paciente insertado en el AVL de "
+             << servicio << "." << endl;
+
+        cout << "------------------------" << endl;
     }
 }
+
+// MOSTRAR DEPARTAMENTOS
 
 void Hospital::mostrarDepartamentos() const {
-    servicios.mostrarNombres();
+    departamentos.mostrarDepartamentos();
 }
 
-void Hospital::mostrarEstadoServicio(int posicion) const {
-    Servicio* s = servicios.buscarPorPosicion(posicion);
-    if (s == nullptr) {
-        cout << "Departamento no valido." << endl;
+// BUSCAR PACIENTE
+
+void Hospital::buscarPaciente(string dato) const {
+    Paciente* encontrado = departamentos.buscarPorId(dato);
+
+    if (encontrado == nullptr) {
+        encontrado = departamentos.buscarPorNombre(dato);
+    }
+
+    if (encontrado == nullptr) {
+        cout << "Paciente no encontrado." << endl;
         return;
     }
-    s->mostrarEstado();
+
+    cout << "\n=== PACIENTE ENCONTRADO ===" << endl;
+    encontrado->mostrar();
 }
 
-void Hospital::mostrarHistorial() const {
-    cout << "=== HISTORIAL DE ULTIMAS ATENCIONES DEL HOSPITAL ===" << endl;
-    historial.mostrar();
+// MOSTRAR ESTADO DE UN DEPARTAMENTO
+
+void Hospital::mostrarEstadoServicio(string nombre) const {
+    Departamento* departamento =
+        departamentos.buscarDepartamento(nombre);
+
+    if (departamento == nullptr) {
+        cout << "Departamento no encontrado." << endl;
+        return;
+    }
+
+    departamento->mostrarPacientes();
+
+    cout << "\n=== RECORRIDO PREORDEN ===" << endl;
+    departamento->mostrarPreorden();
+
+    cout << "\n=== RECORRIDO POSTORDEN ===" << endl;
+    departamento->mostrarPostorden();
+
+    cout << "\n=== ALTURA ===" << endl;
+    departamento->mostrarAltura();
+
+    cout << "\n=== FACTORES DE BALANCE ===" << endl;
+    departamento->mostrarBalance();
 }
